@@ -1,0 +1,88 @@
+
+[v-cloak] {
+    display: none;
+}
+.textcenter{
+    text-align: center !important;
+}
+.main .title{
+    float: right;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    color: white;
+    text-transform:uppercase;
+}
+.mh5{
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+.p5{
+    padding: 5px !important;
+}
+.w100{
+    width:100%;
+}
+.ui.label > .detail {
+
+    margin-left: 0;
+    opacity: 1;
+}
+.blank{
+    margin-top: 35vh;
+    font-size: 1.42857143em !important;
+    transition: 0.3s all ease;
+}
+.ui.search{
+    transition: 0.3s all ease-out;
+}
+footer{
+    width: 100%;
+    display: block;
+
+    margin-bottom: 15px;
+}
+#myApp {
+    min-height: 80vh;
+}
+.background{
+    position: absolute;
+    top:22vh;
+    left: calc(50% - 100px);
+    margin-left: auto; margin-right: auto;
+    opacity: 0.3;
+}
+.part-name{
+    display: inline-block;
+    width: 18.75%;
+    text-align: center;
+}
+.ui.negative.message.errorMessage,.ui.success.message.successMessage{
+    width: 100vw;
+    position: fixed;
+    bottom:0;
+    z-index: 99999;
+    margin-bottom: 0;
+}
+.ui.negative.message.errorMessage> .header,.ui.success.message.successMessage> .header{
+    font-size: 1em;
+}
+.ui.compact.selection.dropdown{
+    width: 10em;
+    padding: .78571429em .5em .78571429em .5em;
+}
+.ui.compact.selection.dropdown .text{
+    width: 94px;
+    height: 1em;
+    overflow: hidden;
+}
+#addANewWord .ui.button,#addSomeNewWord .ui.button{
+   margin-left: 5px;
+}
+#addSomeNewWord.ui.input input{
+    padding: .47857143em 1em;
+}
+.ui.right.floated {
+    float: right;
+    margin: 0 1rem 0 .5rem;
+}

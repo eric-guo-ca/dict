@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <title>My Dictionary</title>
+    <link rel="stylesheet" type="text/css" href="css/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="css/custom.css?2.5">
+</head>
+<body>
+<br>
+    <div id="myApp" v-cloak>
+        <div class="ui fixed blue  inverted main menu" id="title">
+
+            <a class="ui launch icon pointing dropdown link item">
+                <i class="content icon"></i>
+                <div class="menu" id="menu">
+                    <div class="item" id="dict" ><i class="book blue icon"></i>电子词典</div>
+                    <div class="divider"></div>
+                    <div class="item" id="tran"><i class="translate teal icon"></i>全文翻译</div>
+                    <div class="divider" v-show="login"></div>
+                    <div class="item" id="pra" v-show="login"><i class="student orange icon"></i>单词练习</div>
+                    <div class="divider" v-show="login"></div>
+                    <div class="item" id="set" v-show="login"><i class="settings icon"></i>系统设置</div>
+                </div>
+            </a>
+            <p class="title">My  Dictionary</p>
+            <div class="item launch icon pointing link" id="loginButton" v-show="!login"><i class="sign in icon"> 登录</i></div>
+            <div class="item launch icon pointing link" id="logoutButton" v-show="login"><i class="sign out icon"> {{user}}</i></div>
+        </div>
+
+        <!--dictionary page-->
+        <div id="dictionaryPage" v-show="page=='dict'">
+            <div class="background" v-show = isActive>
+                <h1 class="ui centered header">Study Everyday!</h1>
+            </div>
+            <br><br>
+            <div class="ui stackable grid container">
+
+                <div class="sixteen wide tablet eight wide computer centered column" id="searchBox">
+                    <form class="ui form" id="searchWordForm">
+                        <div class="ui search" v-bind:class="{ blank: isActive }">
+                            <div class="ui icon fluid input action" id="searchControl" >
+                                <input class="prompt" type="text" id="searchInput" placeholder="Input Word"   required="required" >
+                                <button class="ui blue icon button">
+                                    <i class="search icon"></i>
+                                </button>
+                            </div>
+                            <div class="results"></div>
+                        </div>
+                    </form>
+                </div><!-- six wide tablet eight wide computer column -->
+            </div><!-- End ui stackable grid container -->
+            <div class="ui divider" v-show = !isActive></div><!-- hr -->
+
+            <article class="ui grid container" id="article" v-show = !isActive>
+                <div class="sixteen wide tablet eight wide computer centered column ">
+                    <h6 class="ui horizontal divider header"><i class="circular blue save icon link" id="addList" title="加入单词表"></i></h6>
+                    <h2 class="ui center aligned header mh5">{{word}}</h2>
+                </div>
+                <div class="eight wide tablet four wide computer column">
+                    <h6 class="ui horizontal divider header"> 美音 <i class="circular orange volume down link icon" id="playAm"></i></h6>
+                    <h4 class="ui center aligned header" v-show=symbols.ph_am>/ {{symbols.ph_am}} /</h4>
+                    <audio id="amAudio">
+                        <source src='' type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                <div class="eight wide tablet four wide computer column">
+                    <h6 class="ui horizontal divider header"> 英音 <i class="circular pink yellow volume down link icon" id="playEn"></i></h6>
+                    <h4 class="ui center aligned header" v-show=symbols.ph_en>/ {{symbols.ph_en}} /</h4>
+                    <audio id="enAudio">
+                        <source src=''  type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+
+                <div class="ui segment  fifteen wide column centered">
+                    <table class="ui unstackable blue table">
+                        <thead>
+                        <tr>
+                            <th class="three wide">词性</th>
+                            <th class="thirteen wide">解释</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr  v-for="mean in means" >
+                            <td>{{mean.part}} </td>
+                            <td><span v-for="m in mean.means"> {{m}} ;</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div v-for="mcns in meanscn ">
+                        <div v-for="mcn in mcns.parts ">
+                            <span class="three wide part-name p5">{{mcn.part_name}}</span>
+                            <span class="p5" v-for="mean in mcn.means"> {{mean.word_mean}}; </span>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="ui blue labels grid">
+                        <div class="p5 eight wide tablet three wide computer  column  attached" v-show = exchange.word_past>
+                            <div class="ui label w100">过去式： <div class="detail" v-for="past in exchange.word_past" >{{past}}</div></div>
+                        </div>
+                        <div class="p5 eight wide tablet three wide computer  column  attached" v-show = exchange.word_done>
+                            <div class="ui label w100">过去分词： <div class="detail" v-for="done in exchange.word_done" >{{done}}</div></div>
+                        </div>
+                        <div class="p5 eight wide tablet three wide computer  column  attached" v-show = exchange.word_er>
+                            <div class="ui label w100">比较级： <div class="detail" v-for="er in exchange.word_er" >{{er}}</div></div>
+                        </div>
+                        <div class="p5 eight wide tablet three wide computer  column  attached" v-show = exchange.word_est>
+                            <div class="ui label w100">最高级： <div class="detail" v-for="est in exchange.word_est" >{{est}}</div></div>
+                        </div>
+                        <div class="p5 eight wide tablet three wide computer  column  attached" v-show = exchange.word_third>
+                            <div class="ui label w100">单三： <div class="detail" v-for="third in exchange.word_third" >{{third}}</div></div>
+                        </div>
+                        <div class="p5 eight wide tablet three wide computer  column  attached" v-show = exchange.word_ing>
+                            <div class="ui label w100">过去分词： <div class="detail" v-for="ing in exchange.word_ing" >{{ing}}</div></div>
+                        </div>
+                        <div class="p5 eight wide tablet three wide computer column  attached" v-show = exchange.word_pl>
+                            <div class="ui label w100">复数： <div class="detail" v-for="pl in exchange.word_pl" >{{pl}}</div></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <!--dictionary page-->
+        <!-- -->
+        <br>
+        <!--translate Page-->
+        <div id="translatePage"  v-show="page=='tran'">
+
+            <div class="ui stackable grid container">
+                <div class="ui divider hidden sixteen wide column"></div><!-- hr -->
+                <h4 class="ui horizontal divider header"> 全文翻译 </h4>
+                <div class="sixteen wide tablet seven wide computer column">
+                    <div class="ui form" id="translateForm">
+                        <div class="field">
+                            <label>Input Your Words
+                                <span>From:
+                                <select name="language" class="ui dropdown select">
+                                  <option value="EN" selected>English</option>
+                                  <option value="zh-CHS">Chinese</option>
+                                  <option value="fr">French</option>
+                                </select>
+                            </span>
+                            </label>
+                            <textarea id="translateText"></textarea>
+                        </div>
+                    </div>
+                </div><!-- six wide tablet eight wide computer column -->
+                <div class="sixteen wide tablet two wide computer column centered  middle aligned" style="text-align: center">
+                    <i class="circular big translate teal icon center link" id="translateButton"></i>
+                </div>
+                <div class="sixteen wide tablet seven wide computer column">
+                    <div class="ui form" >
+                        <div class="field">
+                            <label>Translation Results To:
+                                <div class="ui basic button disabled" >
+                                    {{translateTo}}
+                                </div>
+                            </label>
+                            <textarea class=" disabled" v-model="translatemeans"></textarea>
+                        </div>
+                    </div>
+                </div><!-- six wide tablet eight wide computer column -->
+
+                <div class="sixteen wide column" v-show="webMeans">
+                    <div class="ui divider  sixteen wide column p5"></div><!-- hr -->
+                    <h4>网络词义</h4>
+
+                    <div class="ui bulleted list">
+                        <div class="item" v-for="web in webMeans"><b>举例：</b> {{web.key}} <b> 解释：</b> <span v-for="value in web.value">{{value}}</span></div>
+                    </div>
+                </div>
+                <h4 class="ui horizontal divider header" >
+                    每日一句
+
+                </h4>
+                <div class="sixteen wide tablet six wide computer column">
+                    <img class="ui fluid medium rounded image centered" v-bind:src="daily.picture2" />
+                </div>
+                <div class="sixteen wide tablet ten wide computer column">
+                    <h2>{{daily.content}}
+                        <small v-on:click="toggle()" title="Show Translate">
+                        <i class="circular green unhide down link icon" v-show="isShow"></i>
+                        <i class="circular black hide down link icon" v-show="!isShow"></i>
+                        </small>
+                    </h2>
+
+                    <h4 v-show="isShow">{{daily.note}}</h4>
+                </div>
+            </div><!-- End ui stackable grid container -->
+        </div>
+        <!--translate Page-->
+
+        <!--practice Page-->
+        <div id="practicePage"  v-show="page=='pra'">
+            <div class="ui stackable grid container">
+                <div class="ui divider hidden sixteen wide column"></div><!-- hr -->
+                <!-- practice  -->
+                <div class="sixteen wide tablet ten wide computer column">
+                    <h4 class="ui horizontal divider header"> 单词练习 </h4>
+                    <div class="ui  grid container centered"  v-show="!practice.star">
+
+                        <div class="sixteen wide tablet eight wide computer column">
+                            <br><br><br><br>
+                            <div class="ui small teal centered labeled input textcenter center" id="practiceSelectList">
+                                <select class="ui compact selection dropdown">
+                                    <option v-bind:value="list" v-for ="list in wordListName">{{list}}</option>
+                                </select>
+                                <div class="ui small green button">选择单词表</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br>
+                    <div id="practiceStar" v-show="practice.star">
+                        <div class="ui  grid container centered">
+                            <div class="five wide column">
+                                <h6 class="ui horizontal divider header"> 美音 <i class="circular orange volume down link icon" id="amPlay"></i></h6>
+                                <!--<h4 class="ui center aligned header" v-show=symbols.ph_am>/ {{practice.symbols.ph_am}} /</h4>-->
+                                <audio id="audioAm">
+                                    <source v-bind:src="'http://media.shanbay.com/audio/us/'+practice.word+'.mp3'" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+
+                            <div class="five wide  column">
+                                <h6 class="ui horizontal divider header"> 英音 <i class="circular pink yellow volume down link icon" id="enPlay"></i></h6>
+                                <!--<h4 class="ui center aligned header" v-show=symbols.ph_en>/ {{practice.symbols.ph_en}} /</h4>-->
+                                <audio id="audioEn">
+                                    <source v-bind:src="'http://media.shanbay.com/audio/uk/'+practice.word+'.mp3'"  type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+
+                            <div class="five wide column">
+                                <h6 v-on:click="practice.hideMeans=!practice.hideMeans" title="Show Translate" class="ui horizontal divider header">
+                                    词义
+                                    <i class="circular   down link icon" v-bind:class="{'black hide':practice.hideMeans,'green unhide':!practice.hideMeans}"></i>
+                                </h6>
+                            </div>
+                            <div  class="sixteen wide column textcenter p5" style="min-height: 100px">
+                                <div v-show="practice.showAnswer">
+                                    <h1>{{practice.word}}</h1>
+                                    <!--<span class="ui right floated" v-on:click="practice.hideMeans=!practice.hideMeans"> 标为已会-->
+                                    <!--<i class="circular  icon link" v-bind:class="{' red remove':practice.hideMeans,'green checkmark':!practice.hideMeans}"></i>-->
+                                    <!--</span>-->
+                                </div>
+                                <button class="positive ui button" v-show="practice.finish" id="restart">重新开始练习</button>
+                            </div>
+
+                        </div>
+
+                        <div  class="ui  grid container centered">
+                            <form action="" id="answer" class="sixteen wide tablet ten wide computer column" v-show="!practice.finish">
+                                <div class="ui left icon action fluid input">
+                                    <i class=" icon" v-show="practice.showAnswer" v-bind:class="{' red remove':!practice.judge,'green checkmark':practice.judge}"></i>
+                                    <input type="text" placeholder="输入答案" required="required">
+                                    <button class="ui small green button " v-bind:class="{' disabled':practice.showAnswer}">提交</button>
+                                    <div class="ui small blue button" id="nextQuestion" v-bind:class="{' disabled':!practice.showAnswer}">下一题</div>
+                                </div>
+                            </form>
+                            <div id="result" v-show="practice.finish" class="sixteen wide  column">
+                                <h6 class="ui horizontal divider header"> 练习结果 </h6>
+                                <div class="ui centered cards">
+                                    <div class="green card">
+                                        <div class="content">
+                                            <div class="header">正确单词</div>
+                                            <div class="description"><b v-for="w in practice.rightList">{{w}}; </b> </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="red card">
+                                        <div class="content">
+                                            <div class="header">错误单词</div>
+                                            <div class="description"><b v-for="w in practice.wrongList">{{w}}; </b> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <br>
+
+                        <table class="ui unstackable blue table" v-show="!practice.hideMeans">
+                            <thead>
+                            <tr>
+                                <th class="three wide">词性</th>
+                                <th class="thirteen wide">解释</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr  v-for="mean in practice.means" >
+                                <td>{{mean.part}} </td>
+                                <td><span v-for="m in mean.means"> {{m}} ;</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <br><br>
+
+                    </div>
+
+                </div>
+                <!-- statistic -->
+                <div class="sixteen wide tablet six wide computer column">
+                    <h4 class="ui horizontal divider header"> 统计信息 </h4>
+                    <br><br>
+                    <table class="ui unstackable blue table textcenter celled" v-show="practice.star">
+                        <tbody>
+                            <tr>
+                                <td class="five wide  column">单词量</td>
+                                <td><b>{{practice.wordsTotal}}</b></td>
+                            </tr>
+                            <tr>
+                                <td>已完成</td>
+                                <td>{{practice.rightList.length + practice.wrongList.length}}</td>
+                            </tr>
+                            <tr class="positive">
+                                <td>正确</td>
+                                <td>{{practice.rightList.length}}</td>
+                            </tr>
+                            <tr class="negative">
+                                <td>错误</td>
+                                <td>{{practice.wrongList.length}}</td>
+                            </tr>
+                            <tr v-bind:class="{'positive':practice.accuracy>80,'negative':80>practice.accuracy}">
+                                <td>正确率</td>
+                                <td><h4>{{practice.accuracy}}%</h4></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!--practice Page-->
+
+        <!--setting Page-->
+        <div id="settingPage"  v-show="page=='set'">
+            <div class="ui stackable grid container">
+                <div class="ui divider hidden sixteen wide column"></div><!-- hr -->
+                <!-- left said-->
+                <div class="sixteen wide tablet seven wide computer column">
+                    <h4 class="ui horizontal divider header"> 单个单词添加 </h4>
+                    <div class="ui small fluid right labeled input" id="addANewWord">
+                        <input type="text"  placeholder="添加单词到" required="required" autocomplete="off">
+                        <select class="ui compact selection dropdown">
+                            <option v-bind:value="list" v-for ="list in wordListName">{{list}}</option>
+                        </select>
+                        <div class="ui small blue button">添加</div>
+                    </div>
+
+                    <div class="ui hidden clearing divider"></div>
+
+                    <h4 class="ui horizontal divider header"> 批量单词添加 </h4>
+                    <div class="ui small fluid right labeled input" id="addSomeNewWord">
+                        <input type="file"  placeholder="添加单词到" required="required" autocomplete="off" id="bb">
+                        <select class="ui compact selection dropdown">
+                            <option v-bind:value="list" v-for ="list in wordListName">{{list}}</option>
+                        </select>
+                        <div class="ui small blue button">添加</div>
+                    </div>
+
+                    <h4 class="ui horizontal divider header"> 管理单词表 </h4>
+                    <table class="ui unstackable teal celled table">
+                        <thead>
+                        <tr>
+                            <th class="twelve wide textcenter">单词表名称</th>
+                            <th class="four wide textcenter">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="word-list">
+                        <tr  v-for ="list in wordListName" >
+                            <td class="list-name">{{list}}</td>
+                            <td class='textcenter'><button class="ui mini red button delete-list">删除</button></td>
+                        </tr>
+                        <tr id="addNewList">
+                            <td>
+                                <div class="ui small fluid input">
+                                    <input type="text"  placeholder="添加新单词表" required="required" autocomplete="off">
+                                </div>
+                            </td>
+                            <td class='textcenter'><button class="ui mini teal button">添加</button></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- right said-->
+                <div class="sixteen wide tablet nine wide computer column">
+                    <h4 class="ui horizontal divider header"> 我的单词表 </h4>
+                    <div class="ui small teal right floated labeled input" id="selectList">
+                        <select class="ui compact selection dropdown">
+                            <option v-bind:value="list" v-for ="list in wordListName">{{list}}</option>
+                        </select>
+                        <div class="ui small green button">选择单词表</div>
+                    </div>
+                    <div class="ui hidden clearing divider"></div>
+                    <table class="ui unstackable compact striped teal celled table" id="wordList">
+                        <thead>
+                        <tr>
+                            <th class="two wide textcenter">序号</th>
+                            <th class="textcenter">单词</th>
+                            <!--<th class="two wide textcenter">学会</th>-->
+                            <th colspan="2" class="six wide textcenter">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr  v-for="(word,index) in wordList">
+                            <td  class="textcenter">{{index+1}}</td>
+                            <td>{{word.word}}</td>
+                            <!--<td class='textcenter' >-->
+                                <!--<i class="large red remove icon" v-show="word.learned == '0'"></i>-->
+                                <!--<i class="large green checkmark icon"  v-show="word.learned == '1'"></i>-->
+                            <!--</td>-->
+                            <td class='textcenter'>
+                                <div class="ui mini olive floating dropdown icon button">
+                                    移动
+                                    <div class="menu" >
+                                        <div class="item change-list" v-on:click="changeList(word.id,list)" v-for ="list in wordListName" >
+                                            <i class="external mini icon"></i>{{list}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class='textcenter'><button class="ui mini red icon button delete-word"  v-on:click="deleteWord(word.id)">删除</button></td>
+                        </tr>
+
+                        </tbody>
+                        <tfoot>
+                        <tr><th colspan="5">
+                            <div class="ui small right floated pagination menu" v-show="totalpage > 1" >
+                                <a class="icon item" id="prePage">
+                                    <i class="left chevron icon"></i>
+                                </a>
+
+                                <a class="icon item" id="nextPage">
+                                    <i class="right chevron icon"></i>
+                                </a>
+                                <a class="item disabled">第{{currentPage}}页</a>
+                                <a class="item disabled">共{{totalpage}}页</a>
+                            </div>
+                        </th>
+                        </tr></tfoot>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <!--setting Page-->
+
+        <!--Message-->
+        <div class="ui negative hidden message errorMessage">
+            <i class="close icon"></i>
+            <div class="ui center aligned header"><i class="alarm icon"></i> {{message}} </div>
+        </div>
+        <div class="ui success hidden message successMessage">
+            <i class="close icon"></i>
+            <div class="ui center aligned header"><i class="alarm icon"></i> {{message}} </div>
+        </div>
+        <!--Message-->
+    </div><!-- end app-->
+
+    <div class="ui loader" id="loading"></div>
+    <!--LOGIN-->
+    <div class="ui tiny modal">
+        <div class="ui centered inverted header">LOGIN</div>
+        <div class="content">
+            <form class="ui form" id="loginForm">
+                <div class="field required ">
+                    <label>User Name</label>
+                    <input type="text" name="username" placeholder="User Name" required="required" autocomplete="off">
+                </div>
+                <div class="field required">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Password" required="required" autocomplete="off">
+                </div>
+                <div class="field">
+                    <div class="inline field">
+                        <div class="ui checkbox">
+                            <input type="checkbox" tabindex="0" class="hidden">
+                            <label>Keep Me Login</label>
+                        </div>
+                    </div>
+                </div>
+                <button class="ui fluid button blue" type="submit">LOGIN</button>
+            </form>
+
+        </div>
+        <div class="ui bottom attached negative message hidden">
+            <i class="close icon"></i>
+            <p  class="header">Incorrect username or password</p>
+        </div>
+    </div>
+    <!--LOGIN-->
+
+    <div class="ui hidden clearing divider"></div>
+        <footer class="">
+            <div class="ui divider"></div>
+            <h4 class="ui inverted grey center aligned header">My Dictionary <br><small> Copyright 2017 by Xian Guo</small></h4>
+        </footer>
+
+<script src="js/lib/jquery-3.2.1.min.js"></script>
+<script src="js/lib/vue.min.js"></script>
+<script src="js/lib/semantic.min.js"></script>
+<script src="js/lib/md5.min.js"></script>
+<script src="js/lib/xlsx.core.min.js"></script>
+<script src="js/get-dict.js?4.3"></script>
+</body>
+
+</html>
