@@ -86,3 +86,7 @@ footer{
     float: right;
     margin: 0 1rem 0 .5rem;
 }
+i.remove.icon.link.removeButton{
+    margin-right: 50px;
+    display: none;
+}

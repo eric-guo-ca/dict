@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-siteapp" />
     <title>My Dictionary</title>
     <link rel="stylesheet" type="text/css" href="css/semantic.min.css">
-    <link rel="stylesheet" type="text/css" href="css/custom.css?2.5">
+    <link rel="stylesheet" type="text/css" href="css/custom.css?2.7">
 </head>
 <body>
 <br>
@@ -43,6 +43,7 @@
                     <form class="ui form" id="searchWordForm">
                         <div class="ui search" v-bind:class="{ blank: isActive }">
                             <div class="ui icon fluid input action" id="searchControl" >
+                                <i class="remove icon link removeButton"></i>
                                 <input class="prompt" type="text" id="searchInput" placeholder="Input Word"   required="required" >
                                 <button class="ui blue icon button">
                                     <i class="search icon"></i>
@@ -508,7 +509,7 @@
 <script src="js/lib/semantic.min.js"></script>
 <script src="js/lib/md5.min.js"></script>
 <script src="js/lib/xlsx.core.min.js"></script>
-<script src="js/get-dict.js?4.3"></script>
+<script src="js/get-dict.js?4.6"></script>
 </body>
 
 </html>

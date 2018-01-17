@@ -125,7 +125,7 @@ $(function () {
 
     }
 
-    //单词输入
+    //单词查询
     $('#searchWordForm').submit(function (e) {
        e.preventDefault();
 
@@ -232,17 +232,20 @@ $(function () {
         let inWord = $(this).find('input').val().trim().toLowerCase();
         let test   = /^[a-z.' `]+$/;
         let word   = app.practice.word;
-        let list =$("#practiceSelectList div.text").text();
+        let list   = $("#practiceSelectList div.text").text();
         if(inWord !== '' &&  test.test(inWord)) {
             if(inWord === word){
                 app.practice.showAnswer = app.practice.judge = true;
                 app.practice.rightList.push(word);
-                $.ajax({
-                    type: "POST",
-                    data: {user:app.user,list:list,toList:'已学会',word:word},
-                    dataType: "html",
-                    url: "change_list_right.php"
-                })
+                if(list !== '已学会'){
+                    $.ajax({
+                        type: "POST",
+                        data: {user:app.user,list:list,toList:'已学会',word:word},
+                        dataType: "html",
+                        url: "change_list_right.php"
+                    })
+                }
+
             }else{
                 app.practice.showAnswer = true;
                 app.practice.judge      = false;
@@ -729,7 +732,19 @@ $(function () {
     //下拉菜单
     $('.ui.dropdown').dropdown();
     $('.select').dropdown();
-
+    //单词输入显示清除按钮
+    $("#searchInput").on('input focus change blur keyup',function () {
+        let v = $("#searchInput").val();
+        if(v !==''){
+            $(".removeButton").show();
+        }else{
+            $(".removeButton").hide();
+        }
+    });
+    $(".removeButton").on('click',function () {
+        $("#searchInput").val('');
+        $(".removeButton").hide();
+    });
     //多选框
     $('.ui.checkbox').checkbox();
     //登录错误信息关闭
